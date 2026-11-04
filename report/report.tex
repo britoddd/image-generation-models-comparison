@@ -1,0 +1,92 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper, total={6in, 10.5in}]{geometry}
+\usepackage{blindtext}
+\usepackage{indentfirst}
+\usepackage{array}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash\hyphenpenalty=10000\exhyphenpenalty=10000}p{#1}}
+
+\title{
+    \parbox{1\textwidth}{
+        \centering
+        \Large\bfseries
+        Komparatif Empiris Model Generatif:\\
+        Autoencoder Vanilla \& Sparse, GAN Vanilla \& DCGAN, VAE, dan DDPM disertai Pembuktian Batasan Teoretis Model Klasifikasi untuk Image Generation
+    }
+}
+
+\author{2802403183 - Brian Nicholas Tedjo}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Identitas Mahasiswa}
+    \begin{itemize}
+        \item[$\bullet$] Nama: Brian Nicholas Tedjo
+        \item[$\bullet$] NIM: 2802403183
+        \item[$\bullet$] Kelas: LA01
+        \item[$\bullet$] Link GitHub: https://github.com/britoddd/image-generation-models-comparison
+    \end{itemize}
+
+
+\section{Kajian Pustaka}
+Diagram skematik arsitektur keenam model generatif (Vanilla AE, Sparse AE, Vanilla GAN, VAE, DCGAN, DDPM) serta satu model MLP Classifier pendamping. Tabel konfigurasi parameter (lapisan arsitektur, dimensi laten, fungsi aktivasi, optimizer, learning rate) serta formulasi matematika loss function lengkap untuk masing-masing model.
+\subsection{Landasan Teori}
+    \subsubsection{Landasan Teori}
+\blindtext
+\subsection{Desain Arsitektur}
+\subsection{Formulasi Matematika}
+
+
+\section{Pembuktian Teoretis dan Empiris Batasan MLP Classifier untuk Image
+Generation}
+Uraian matematis perbedaan pemodelan $P(y|x)$ berbanding $P(x)$ serta sifat ketidakbalikan matriks bobot $W^T \neq W^{-1}$. Penyajian hasil eksperimen proyeksi balik transpos bobot, evaluasi frozen latent decoder ($Z_{MLP}$ berbanding $Z_{AE}$), serta hasil uji prior sampling pada ruang laten MLP Classifier.
+
+
+\section{Kompilasi Kuantitatif}
+\begin{table}
+    \footnotesize
+    \begin{center}
+        \begin{tabular}{|
+        P{2cm}|>
+        {\centering\arraybackslash}p{1.2cm}|>
+        {\centering\arraybackslash}p{1.2cm}|>{\centering\arraybackslash}p{1.2cm}|>{\centering\arraybackslash}p{1.2cm}|>{\centering\arraybackslash}p{1.2cm}|>{\centering\arraybackslash}p{1.2cm}|>{\centering\arraybackslash}p{1.2cm}|
+        } 
+            \hline
+            Arstitektur Model & Dim Laten & Training Time/ Epoch(s) & Latency (ms /batch64) & Test MSE & Test PSNR (dB) & FID Score & Kestabilan Training \\ [0.5ex] 
+            \hline\hline
+            Vanilla Autoencoder & 1 & 1 & 1 & 1 & 1 & 1 & Rendah \\ 
+            \hline
+            Sparse Autoencoder & 1 & 1 & 1 & 1 & 1 & 1 & Rendah \\
+            \hline
+            Variational Autoencoder (VAE) & 1 & 1 & 1 & 1 & 1 & 1 & Rendah \\
+            \hline
+            Generative Adversarial Network (GAN) & 1 & 1 & 1 & 1 & 1 & 1 & Rendah \\
+            \hline
+            Deep Convolutional GAN (DCGAN) & 1 & 1 & 1 & 1 & 1 & 1 & Rendah \\
+            \hline
+            Denoising Diffusion Probabilistic Models (DDPM) & 1 & 1 & 1 & 1 & 1 & 1 & Rendah \\
+            \hline
+        \end{tabular}
+        \caption{Hasil Komparasi Metrik Numerik}
+    \end{center}
+\end{table}
+\blindtext
+
+
+\section{Kompilasi Lima Visualisasi Komparatif Utama}
+Penyajian lima figur visual dengan resolusi tinggi, penomoran resmi, serta analisis visual komparatif antarmodel.
+\blindtext
+
+
+\section{Pembahasan Kritis, Jawaban Pertanyaan Penelitian, dan 
+Rekomendasi Industri}
+\subsection{Daftar Pertanyaan}
+\subsubsection{Q1: Perbandingan Kuantitatif}
+Bagaimana komparasi kuantitatif kemampuan rekonstruksi antara Vanilla Autoencoder, Sparse Autoencoder, dan Variational Autoencoder (VAE) yang dievaluasi melalui metrik Test MSE, Test PSNR, dan Test SSIM? Jelaskan bagaimana penambahan penalti regularisasi sparsity $\lambda||h||_1$ pada representasi laten Sparse AE memengaruhi fidelitas rekonstruksi jika dibandingkan dengan representasi padat Vanilla AE. Selanjutnya, bagaimana perbandingan metrik FID (Fréchet Inception Distance) antarmodel generatif: VAE, Vanilla GAN (berbasis MLP), DCGAN, dan DDPM saat menyintesis sampel citra baru dari prior derau acak $z \sim N(0,I)$?
+
+Diskusi mendalam mengenai temuan empiris, analisis jawaban terperinci atas pertanyaan Q1 sampai Q6, verifikasi teori Generative Trilemma, serta rekomendasi pemilihan model untuk deployment industri nyata.
+\blindtext
+
+\end{document}
