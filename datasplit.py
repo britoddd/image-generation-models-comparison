@@ -34,7 +34,6 @@ def get_data_loaders():
         ])
     )
 
-    dataset = ConcatDataset([train_data, test_data])
     generator = torch.Generator().manual_seed(42)
 
     full_data = ConcatDataset([train_data, test_data])
