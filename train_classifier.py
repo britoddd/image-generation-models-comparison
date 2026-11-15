@@ -57,6 +57,7 @@ def main():
     losses = []
     model.to(device)
 
+    best_val_acc = 0
     for epoch in range(EPOCHS):
         model.train()
         for images, labels in train_loader:
