@@ -11,7 +11,7 @@ from torchvision.datasets import FashionMNIST
 from torchvision.transforms import v2
 from torch.utils.data import DataLoader, random_split, ConcatDataset
 
-BATCH = 64
+BATCH = 128
 
 def get_data_loaders():
     train_data = FashionMNIST(
