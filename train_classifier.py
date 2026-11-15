@@ -98,8 +98,8 @@ def main():
         "W3": model.linear3.weight.detach().cpu(),
     }
 
-    torch.save(weights, "weights_W1_W2_W3.pt")
-    torch.save(model.state_dict(), "mlp_classifier.pt")
+    torch.save(weights, "weights/weights_W1_W2_W3.pt")
+    torch.save(model.state_dict(), "models/mlp_classifier.pt")
 
     model.eval()
     correct, total_pred = 0, 0
@@ -118,7 +118,7 @@ def main():
     # z value extraction
     for name, loader in [("train", train_loader), ("val", val_loader), ("test", test_loader)]:
         z, y, x = extract_z(model, loader)
-        torch.save({"z": z, "y": y, "x": x}, f"z_mlp_{name}.pt")
+        torch.save({"z": z, "y": y, "x": x}, f"latents/z_mlp_{name}.pt")
 
 
 if __name__ == "__main__":
