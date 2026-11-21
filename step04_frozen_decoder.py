@@ -30,7 +30,7 @@ def main():
     tr = torch.load("latents/z_mlp_train.pt")
     te = torch.load("latents/z_mlp_test.pt")
 
-    mlp = MLPClassifier()  # encoder from Tahap 1, frrozen below
+    mlp = MLPClassifier()  # encoder from Tahap 1, frozen below
     mlp.load_state_dict(torch.load("models/mlp_classifier.pt"))
     mlp.requires_grad_(False)  # freeze every MLP weight
     W1_before = mlp.linear1.weight.clone()
