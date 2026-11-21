@@ -1,8 +1,8 @@
 """
-Tahap 02: Proyeksi Balik Bobot Langsung dari Vektor Kelas
+Tahap 03: Proyeksi Balik dari Latent Features Citra Uji (Latent Transpose Projection)
 
-Menggunakan matriks bobot dari train_classifier.py untuk memproyeksikan balik
-kelas target menuju ruang piksel tanpa retraining tambahan
+Fitur laten z_MLP dari citra uji riil diproyeksikan langsung ke ruang piksel
+menggunakan transpos bobot ekstraktor fitur: x̂ = Sigmoid(W1ᵀ ReLU(W2ᵀ z))
 z (64) ──W2ᵀ──> h' (256) ──W1ᵀ──> x̂ (784)
 
 """
@@ -17,12 +17,7 @@ d = torch.load("latents/z_mlp_test.pt")
 z, x, y = d["z"], d["x"], d["y"]
 
 # Back-projection
-x_hat = z @ W2 @ W1
-
-# Rescale images
-mn = x_hat.min(dim=1, keepdim=True).values
-mx = x_hat.min(dim=1, keepdim=True).values
-x_hat = (x_hat - mn) / (mx - mn + 1e-8)
+x_hat = torch.sigmoid(torch.relu(z @ W2) @ W1)
 
 mse = ((x_hat - x.flatten(1)) ** 2).mean()
 print(f"Back-projection MSE: {mse:.4f}")
