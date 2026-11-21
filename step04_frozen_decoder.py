@@ -36,9 +36,9 @@ def main():
     W1_before = mlp.linear1.weight.clone()
 
     print("== Decoder on frozen Z_MLP ==")
-    frozen = fit(FrozenMLPDecoder(mlp), tr["x"], tr["x"])  # added decoder
+    frozen, _ = fit(FrozenMLPDecoder(mlp), tr["x"], tr["x"])  # added decoder
     print("== Autoencoder (Z_AE) ==")
-    ae = fit(AE(), tr["x"], tr["x"])
+    ae, _ = fit(AE(), tr["x"], tr["x"])
 
     # Proof that the MLP weights never changed
     assert torch.equal(mlp.linear1.weight.cpu(), W1_before), "MLP was updated!"
