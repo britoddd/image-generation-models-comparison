@@ -46,13 +46,13 @@ class AE(nn.Module):
         return self.decoder(self.encoder(x))
 
 
-def fit(model, inp, target, epochs=20, loss_fn=None):
+def fit(model, inp, target, epochs=20, loss_fn=None, lr=1e-3):
     """Train with Adam. loss_fn(model, a, b) → loss; default is MSE(model(a), b).
     Returns (model, log) where log has per-epoch loss and seconds."""
     if loss_fn is None:
         loss_fn = lambda m, a, b: nn.functional.mse_loss(m(a), b)
 
-    loader = DataLoader(TensorDataset(inp, target), batch_size=128, shuffle=True)
+    loader = DataLoader(TensorDataset(inp, target), batch_size=128, shuffle=True, lr=lr)
     opt = torch.optim.Adam(model.parameters(), lr=1e-3)
     model.to(device)
     log = {"loss": [], "epoch_time": []}
