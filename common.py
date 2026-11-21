@@ -52,8 +52,8 @@ def fit(model, inp, target, epochs=20, loss_fn=None, lr=1e-3):
     if loss_fn is None:
         loss_fn = lambda m, a, b: nn.functional.mse_loss(m(a), b)
 
-    loader = DataLoader(TensorDataset(inp, target), batch_size=128, shuffle=True, lr=lr)
-    opt = torch.optim.Adam(model.parameters(), lr=1e-3)
+    loader = DataLoader(TensorDataset(inp, target), batch_size=128, shuffle=True)
+    opt = torch.optim.Adam(model.parameters(), lr=lr)
     model.to(device)
     log = {"loss": [], "epoch_time": []}
 
