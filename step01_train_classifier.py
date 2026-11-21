@@ -8,8 +8,8 @@ Loss function yang digunakan: Cross-Entropy loss
 
 import torch
 from datasplit import get_data_loaders
+from common import device
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 EPOCHS = 10
 
 
@@ -88,9 +88,11 @@ def main():
         val_acc = correct / total * 100
         if val_acc > best_val_acc:
             best_val_acc = val_acc
-            torch.save(model.state_dict(), "mlp_classifier.pt")
+            torch.save(model.state_dict(), "models/mlp_classifier.pt")
 
         print(f"Epoch {epoch+1}/{EPOCHS} | Loss: {epoch_loss:.6f} | Val acc: {val_acc:.2f}%")
+
+    model.load_state_dict(torch.load("models/mlp_classifier.pt"))
 
     # Extract Parameters
     weights = {
@@ -100,7 +102,6 @@ def main():
     }
 
     torch.save(weights, "weights/weights_W1_W2_W3.pt")
-    torch.save(model.state_dict(), "models/mlp_classifier.pt")
 
     model.eval()
     correct, total_pred = 0, 0
