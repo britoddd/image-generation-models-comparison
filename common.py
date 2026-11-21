@@ -6,6 +6,7 @@ import numpy as np
 import torch
 from torch import nn
 from torch.utils.data import TensorDataset, DataLoader
+from torchmetrics.functional.image import structural_similarity_index_measure as ssim_fn
 
 # Fixed seed (instruction: torch.manual_seed(42) and np.random.seed(42))
 torch.manual_seed(42)
@@ -68,4 +69,5 @@ def evaluate(model, inp, target):
     out = model(inp.to(device)).cpu()
     mse = ((out - target) ** 2).mean().item()
     psnr = 10 * torch.log10(torch.tensor(1.0 / mse)).item()
-    return out, mse, psnr
+    ssim = ssim_fn(out, target, data_range=1.0).item()
+    return out, mse, psnr, ssim
