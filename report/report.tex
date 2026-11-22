@@ -240,10 +240,20 @@ Pada tahapan ini, pada bobot MLP Classifier dibekukan $\texttt{requires\_grad\_(
 
 Berdasarkan nilai dari $Z_{MLP}$ dan $Z_{AE}$, didapatkan karakteristik dari tiap pemodelan. $Z_{MLP}$ cenderung memiliki nilai kesalahan yang lebih tinggi pada seluruh metriks yang terdapat di tabel rekonstruksi. Pada metriks MSE dan PSNR, nilai MSE menunjukkan angka $Z_{MLP}$ dua kali lebih tinggi, menunjukkan bahwa $Z_{MLP}$ tidak lebih baik dari $Z_{AE}$ dalam menciptakan representasi. Begitu pula dengan metrik SSIM, $Z_{MLP}$ memiliki angka yang lebih rendah, menunjukkan hasil yang lebih buruk.
 
+Tingginya nilai dari autoencoder dibandingkan MLP classifier disebabkan karakteristik dari masing-masing, di mana autoencoder memang dirancang untuk mencari representasi dari input, sedangkan MLP classifier ditujukan untuk klasifikasi. Pada tahap 3 juga dapat dilihat nilai proyeksi balik dari $Z_{MLP}$ dapat mengenali bentuk umum dari suatu objek, tapi kehilangan detail yang lebih dalam.
+
 \subsection{Hasil uji prior sampling pada ruang laten MLP Classifier}
 % Angka: % nol pada z asli, % nilai negatif pada z_rand (output step05). Gambar: prior_sampling.png.
-\isi{Hasil dan analisis Tahap 5.}
+Dilakukan perhitungan vektor rata-rata $\mu_z$ dan simpangan baku $\sigma_z$ dari fitur laten $Z_{MLP}$ lalu ditarik sampel acak $z_{\text{rand}}\sim \mathcal{N}\big(\mu_z,\text{diag}(\sigma^2_z)\big)$ yang kemudian diteruskan ke decoder pada tahap 4. Didapatkan nilai $z$ asli sebesar 50.9\% dengan nilai terendah 0.0, sedangkan nilai $z_{\text{sampled}}$ 13.0\% dengan meliputi nilai negatif.
 
+\begin{figure}[H]
+    \centering
+    \fig{.7\textwidth}{prior_sampling.png}
+\end{figure}
+
+Terlihat bahwa gambar yang diambil dari hasil normalisasi memiliki hasil yang lebih jauh dibandingkan gambar asli. Tidak ada satupun dari 8 sampel yang berhasil merepresentasikan $x$. Sebagian kecil dari setiap gambar masih merepresentasikan data asli, namun sebagian besar lainnya tidak. Hal ini disebabkan nilai terendah dari $z$ seharusnya adalah 0, tidak mencapai negatif.
+
+Nilai $z$ tidak mungkin negatif karena fungsi aktivasi ReLU selalu membuat $z \ge 0$ sehingga memberikan nilai paling kecil 0 ke decoder. Selain itu, penggunaan $diag(\sigma^2)$ menghilangkan korelasi antar fitur dimensi.
 
 % =====================================================================
 \section{Kompilasi Kuantitatif}
