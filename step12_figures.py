@@ -4,7 +4,6 @@ Tahap 12: Kompilasi Lima Visualisasi Komparatif Utama (Bagian V)
 Fig 1: rekonstruksi AE / Sparse AE / VAE      Fig 2: random sampling 4x4 per model
 Fig 3: batasan MLP Classifier (Tahap 2–5)     Fig 4: interpolasi laten linear
 Fig 5: training loss curves + DDPM denoising trajectory
-
 """
 
 import torch
@@ -83,3 +82,44 @@ def figure4(m, x, y):
             show(ax[r, c], decode((1 - a) * z_a + a * z_b)[0], f"α = {a}" if r == 0 else None)
         ax[r, 0].text(-4, 14, name, ha="right", va="center", fontsize=10)
     save(fig, "fig4_interpolation")
+
+
+def figure5():
+    fig, ax = plt.subplot_mosaic(
+        [["ae", "sparse_ae", "vae"], ["gan", "dcgan", "ddpm"], ["traj", "traj", "traj"]],
+        figsize=(13, 11), height_ratios=[1, 1, 0.9],
+    )
+    titles = {"ae": "Vanilla AE (MSE)", "sparse_ae": "Sparse AE (MSE + λ‖h‖₁)", "vae": "VAE (BCE + KL)",
+              "gan": "Vanilla GAN", "dcgan": "DCGAN", "ddpm": "DDPM (noise MSE)"}
+    for name, title in titles.items():
+        log = torch.load(f"logs/{name}.pt")
+        if "d_loss" in log:                       # GANs: two curves
+            epochs = range(1, len(log["d_loss"]) + 1)
+            ax[name].plot(epochs, log["d_loss"], label="Discriminator")
+            ax[name].plot(epochs, log["g_loss"], label="Generator")
+            ax[name].legend(fontsize=8)
+        else:
+            ax[name].plot(range(1, len(log["loss"]) + 1), log["loss"])
+        ax[name].set(title=title, xlabel="Epoch", ylabel="Loss")
+
+    traj = torch.load("logs/ddpm_trajectory.pt")  # 6 snapshots, each (16,1,28,28)
+    strip = torch.cat([torch.cat([s[i, 0] for s in traj], dim=1) for i in range(4)], dim=0)
+    ax["traj"].imshow(strip, cmap="gray")
+    ax["traj"].axis("off")
+    ax["traj"].set_title("DDPM reverse diffusion  x_T → x_0   (t = 999 → 750 → 500 → 250 → 100 → 0)")
+    save(fig, "fig5_loss_and_trajectory")
+
+
+@torch.no_grad()
+def main():
+    m = load_models()
+    te = torch.load("latents/z_mlp_test.pt")
+    figure1(m, te["x"])
+    figure2(generators(m))
+    figure3()
+    figure4(m, te["x"], te["y"])
+    figure5()
+
+
+if __name__ == "__main__":
+    main()
