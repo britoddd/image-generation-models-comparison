@@ -8,6 +8,7 @@
 \usepackage{xcolor}
 \usepackage{float}
 \usepackage{hyperref}
+\usepackage[font=scriptsize]{caption} 
 \newcolumntype{P}[1]{>{\raggedright\arraybackslash\hyphenpenalty=10000\exhyphenpenalty=10000}p{#1}}
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 \graphicspath{{../figures/}}
@@ -81,7 +82,7 @@ Menambahkan \textit{noise} Gaussian pada setiap langkah, $q(x_t \mid x_{t-1})=\m
     \caption{Konfigurasi arsitektur dan hyperparameter}
     \label{tab:frozen}
     \resizebox{\textwidth}{!}{%
-    \begin{tabular}{|l|p{5cm}|l|l|}
+    \begin{tabular}{lp{5cm}ll}
         \hline
         \textbf{Metrik} & \textbf{Definisi} &\textbf{Persamaan Matematika} & \textbf{Nilai Baik} \\
         \hline
@@ -90,7 +91,7 @@ Menambahkan \textit{noise} Gaussian pada setiap langkah, $q(x_t \mid x_{t-1})=\m
         \hline
         PSNR & MSE dengan skala log, +3dB $\approx$ separuh MSE & $10\log_{10}(\text{MAX}^2/\text{MSE})$, MAX=1 & Tinggi \\
         \hline
-        SSIM & Membandingkan intensitas cahaya, kontras, dan struktur~\cite{wang2004} &  & Tinggi (hingga 1) \\
+        SSIM & Membandingkan intensitas cahaya, kontras, dan struktur~\cite{wang2004} &  & Tinggi \\
         \hline
         FID & Mengukur kualitas dan persebaran secara bersamaan & $\lVert\mu_{r}-\mu_{g}\rVert^2+\mathrm{Tr}\big(\Sigma_r+\Sigma_g-2(\Sigma_r\Sigma_g)^{1/2}\big)$ & Rendah \\
         \hline
@@ -103,9 +104,9 @@ Menambahkan \textit{noise} Gaussian pada setiap langkah, $q(x_t \mid x_{t-1})=\m
 Xiao et al. (2022) mengobservasi 3 kesulitan yang dialami oleh model generatif:
 
 \begin{table}[H]
-    \centering
     \label{tab:frozen}
-    \begin{tabular}{|l|l|l|l|}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{p{3cm}C{3.5cm}C{3.5cm}C{3.9cm}}
         \hline
         \textbf{Check} & \textbf{Kualitas Sampel} & \textbf{Diversitas Mode} & \textbf{Kecepatan Sampling} \\
         \hline
@@ -116,7 +117,7 @@ Xiao et al. (2022) mengobservasi 3 kesulitan yang dialami oleh model generatif:
         \hline
         DDPM & Tajam & Tahan kolaps & Berulang kali \\
         \hline
-    \end{tabular}
+    \end{tabular}}
 \end{table}
 
 \subsection{Pengaturan Eksperimen}
@@ -128,7 +129,7 @@ Seluruh model dilatih pada dataset Fashion-MNIST (70.000 citra grayscale $28\tim
     \centering
     \label{tab:config}
     \resizebox{\textwidth}{!}{%
-    \begin{tabular}{|P{2.4cm}|P{5.2cm}|C{1.4cm}|P{3cm}|P{2.6cm}|C{1.2cm}|P{2.8cm}|}
+    \begin{tabular}{P{2.4cm}P{5.2cm}C{1.4cm}P{3cm}P{2.6cm}C{1.2cm}P{2.8cm}}
         \hline
         \textbf{Model} & \textbf{Lapisan} & \textbf{Dim Laten} & \textbf{Aktivasi} & \textbf{Optimizer, LR} & \textbf{Epoch} & \textbf{Loss} \\
         \hline\hline
@@ -227,15 +228,16 @@ Pada tahapan ini, pada bobot MLP Classifier dibekukan $\texttt{requires\_grad\_(
     \centering
     \caption{Rekonstruksi test set dari laten beku $z_{MLP}$ dibandingkan Vanilla AE ($z_{AE} \in \mathbb{R}^{64}$)}
     \label{tab:frozen}
-    \begin{tabular}{|l|c|c|c|}
+    \resizebox{.55\textwidth}{!}{
+    \begin{tabular}{lccc}
         \hline
         \textbf{Laten} & \textbf{MSE} & \textbf{PSNR (dB)} & \textbf{SSIM} \\
+        \hline\hline
+        $z_\text{MLP}$ (MLP dibekukan) & 0.0170 & 17.69 & 0.7083 \\
         \hline
-        $z_{MLP}$ (MLP dibekukan) & 0.0170 & 17.69 & 0.7083 \\
+        $z_\text{AE}$ (Vanilla AE) & 0.0086 & 20.65 & 0.8291 \\
         \hline
-        $z_{AE}$ (Vanilla AE) & 0.0086 & 20.65 & 0.8291 \\
-        \hline
-    \end{tabular}
+    \end{tabular}}
 \end{table}
 
 Berdasarkan nilai dari $Z_{MLP}$ dan $Z_{AE}$, didapatkan karakteristik dari tiap pemodelan. $Z_{MLP}$ cenderung memiliki nilai kesalahan yang lebih tinggi pada seluruh metriks yang terdapat di tabel rekonstruksi. Pada metriks MSE dan PSNR, nilai MSE menunjukkan angka $Z_{MLP}$ dua kali lebih tinggi, menunjukkan bahwa $Z_{MLP}$ tidak lebih baik dari $Z_{AE}$ dalam menciptakan representasi. Begitu pula dengan metrik SSIM, $Z_{MLP}$ memiliki angka yang lebih rendah, menunjukkan hasil yang lebih buruk.
@@ -248,6 +250,7 @@ Dilakukan perhitungan vektor rata-rata $\mu_z$ dan simpangan baku $\sigma_z$ dar
 
 \begin{figure}[H]
     \centering
+    \caption{$z$ asli vs $z_{\text{rand}}\sim \mathcal{N}\big(\mu_z, \text{diag}(\sigma^2_z)\big)$ dengan decoder sama}
     \fig{.7\textwidth}{prior_sampling.png}
 \end{figure}
 
@@ -263,17 +266,21 @@ Nilai $z$ tidak mungkin negatif karena fungsi aktivasi ReLU selalu membuat $z \g
     \caption{Hasil komparasi metrik numerik pada test set}
     \label{tab:metrics}
     \resizebox{\textwidth}{!}{%
-    \begin{tabular}{|P{2.8cm}|C{1.6cm}|C{1.7cm}|C{1.7cm}|C{1.3cm}|C{1.4cm}|C{1.3cm}|C{1.6cm}|P{2.8cm}|}
+    \begin{tabular}{P{2.4cm}C{1.6cm}C{1.7cm}C{1.7cm}C{1.3cm}C{1.4cm}C{1.3cm}C{1.6cm}P{2.8cm}}
         \hline
         \textbf{Arsitektur Model} & \textbf{Dim Laten} & \textbf{Training Time / Epoch (s)} & \textbf{Latency (ms / batch 64)} & \textbf{Test MSE} & \textbf{Test PSNR (dB)} & \textbf{Test SSIM} & \textbf{FID Score} & \textbf{Kestabilan Training} \\
         \hline\hline
-        Vanilla Autoencoder & 64 & 0.75 & 0.22 & 0.0087 & 20.61 & 0.8267 & N/A & Stabil \\
-        Sparse Autoencoder & 64 & 0.87 & 0.14 & 0.0098 & 20.10 & 0.8052 & N/A & Stabil \\
-        VAE & 64 & 0.90 & 0.09 & 0.0135 & 18.69 & 0.7613 & 91.64 & Stabil \\
-        Vanilla GAN & 100 & 1.22 & 0.14 & N/A & N/A & N/A & 147.81 & Mode Collapse \\
-        DCGAN & 100 & 3.36 & 165.40 & N/A & N/A & N/A & 33.65 & Mode Collapse \\
-        DDPM & $28\times28$ & 9.30 & 23479.36 & N/A & N/A & N/A & 44.17 & Sangat Stabil \\
-        
+        Vanilla Autoencoder & 64 & 0.75 & 0.15 & 0.0086 & 20.65 & 0.8291 & N/A & \\
+        \hline
+        Sparse Autoencoder & 64 & 0.87 & 0.14 & 0.0098 & 20.10 & 0.8052 & N/A & \\
+        \hline
+        VAE & 64 & 0.90 & 0.06 & 0.0135 & 18.69 & 0.7613 & 91.64 & \\
+        \hline
+        Vanilla GAN & 100 & 1.22 & 0.13 & N/A & N/A & N/A & 147.81 & \\
+        \hline
+        DCGAN & 100 & 3.36 & 0.36 & N/A & N/A & N/A & 33.65 & \\
+        \hline
+        DDPM & 28\times28 & 9.30 & 2778.91 & N/A & N/A & N/A & 44.17 & \\
         
         \hline
     \end{tabular}}
@@ -289,7 +296,13 @@ Nilai $z$ tidak mungkin negatif karena fungsi aktivasi ReLU selalu membuat $z \g
 
 Latency diukur sebagai rata-rata waktu untuk menghasilkan 64 citra baru dari derau (VAE, GAN, DCGAN, DDPM dengan $T = 1000$ langkah) atau merekonstruksi 64 citra test (Vanilla AE, Sparse AE), setelah satu pemanggilan warm-up. FID dihitung dengan fitur Inception-v3 (2048 dimensi) antara 5.000 sampel sintetis dan 5.000 citra test set, dengan kanal grayscale diduplikasi menjadi tiga kanal.
 
-\isi{Analisis tabel.}
+Model Vanilla Autoencoder memiliki durasi pelatihan per iterasi paling cepat, di angka 0.75s, dikarenakan tidak memiliki perhitungan tambahan. Pada Sparse Autoencoder, terdapat kalkulasi penalti L1 yang menambah sedikit durarsi. Pada VAE, perhitungan tambahan distribusi dilakukan terlebih dahulu. Vanilla GAN melakukan training pada dua model berbeda pada setiap iterasi, sehingga menghasilkan waktu training yang lebih lama dari arsitektur autoencoder. Begitu pula dengan DGCAN yang memiliki tambahan layer konvolusi yang turut membuat durasinya semakin panjang. DDPM menghasilkan durasi paling lama, mencapai 9.30s, karena proses melatihnya melibatkan pemberian derau pada input dan penghapusan derau sedikit demi sedikit hingga kembali ke gambar awal.
+
+Pada proses pelatihan, DDPM membutuhkan waktu yang jauh lebih lama secara signifikan, disebabkan oleh T = 1000 langkah yang dilakukan secara sequential setiap kali melakukan pembuatan gambar baru.
+
+Metriks MSE, PSNR, dan SSIM digunakan pada model autoencoder, keseluruhan metrik tersebut menghasilkan urutan rank yang sama, vanilla autoencoder terbaik, disusul sparse autoencoder dan VAE. Metrik ini tidak digunakan pada Vanilla GAN, DCGAN, dan DDPM karena mencocokkan gambar piksel demi piksel, sehingga cocok untuk gambar yang buram, padahal ketiga model tersebut menciptakan gambar baru dengan sifat tajam.
+
+Skor FID menjadi metrik tepat yang mengukur distribusi dari fitur gambar yang dibuat, bukan dari posisi piksel eksak. 
 
 
 % =====================================================================
@@ -301,7 +314,7 @@ Latency diukur sebagai rata-rata waktu untuk menghasilkan 64 citra baru dari der
     \caption{Grid rekonstruksi side-by-side delapan citra test set: citra asli, Vanilla AE, Sparse AE, dan VAE.}
     \label{fig:recon}
 \end{figure}
-\isi{Analisis Figur 1: ketajaman kontur, efek sparsity, keburaman.}
+Seluruh model menghasilkan rekonstruksi tajam dan dapat dikenali manusia dengan mudah pada seluruh kelas. Meskipun begitu, terdapat perbedaan yang cukup kentara pada model VAE. Hasil rekonstruksi VAE menunjukkan bahwa detail yang terdapat pada gambar selalu hilang, seperti teks pada kaos, dekorasi di bagian depan sepatu hak tinggi, dan tulisan pada tas. Model Vanilla dan Sparse sama-sama menghasilkan representasi yang cenderung lebih detail. Tidak terdapat perbedaan signifikan yang disebabkan oleh sifat sparse.
 
 \begin{figure}[H]
     \centering
@@ -309,7 +322,7 @@ Latency diukur sebagai rata-rata waktu untuk menghasilkan 64 citra baru dari der
     \caption{Random generative sampling $4\times4$: (A) VAE dari $z \sim \mathcal{N}(0,I)$, (B) Vanilla GAN, (C) DCGAN, (D) DDPM dari reverse denoising $x_T \sim \mathcal{N}(0,I)$.}
     \label{fig:sampling}
 \end{figure}
-\isi{Analisis Figur 2: tekstur, ketajaman kontur, keberagaman mode.}
+Pada $z$ yang didapatkan melalui sampling acak, terlihat perbedaan signifikan antara setiap model. VAE menghasilkan gambar yang buram, tidak memiliki tepian yang jelas, serta memiliki warna yang terbatas pada abu-abu. Vanilla GAN menghasilkan gambar dengan bercak noise hitam, namun masih memiliki tepian yang jelas, walaupun beberapa gambar sulit dikenali ketika bercak hitam berjumlah banyak. DCGAN menghasilkan gambar yang sebagian utuh, namun sebagian lainnya terpotong/hilang. DDPM menghasilkan gambar utuh bagi beberapa kelas, namun beberapa kelas lainnya tidak dapat dikenali.
 
 \begin{figure}[H]
     \centering
@@ -317,7 +330,7 @@ Latency diukur sebagai rata-rata waktu untuk menghasilkan 64 citra baru dari der
     \caption{Bukti empiris batasan bobot dan fitur laten MLP Classifier: proyeksi balik $W^T$ dari $y_c$ dan $z_{MLP}$, frozen latent decoder ($z_{MLP}$ vs $z_{AE}$), dan prior sampling $z_{rand} \sim \mathcal{N}(\mu_z, \mathrm{diag}(\sigma_z^2))$.}
     \label{fig:mlp}
 \end{figure}
-\isi{Analisis Figur 3.}
+Proyeksi balik $W_T$ dan $z_\text{MLP}$ sama-sama menghasilkan gambar yang tidak dapat dikenali. Hal ini menunjukkan batasan keduanya dalam menyimpan representasi gambar. Pada model yang menggunakan frozen latent decoder, hasilnya menunjukkan perubahan ke arah yang lebih baik. Terlihat bahwa fitur dari $z_{\text{AE}}$ menghasilkan gambar yang lebih detail serta lebih tajam dibandingkan $z_\text{MLP}$, menunjukkan kelebihan arsitektur autoencoder dibandingkan classifier untuk menciptakan representasi. Ketika dilakukan prior sampling pada data $z$, dihasilkan citra yang tidak berbentuk, mengartikan bahwa nilai $z$ tidak boleh lebih kecil dari nol.
 
 \begin{figure}[H]
     \centering
@@ -325,7 +338,7 @@ Latency diukur sebagai rata-rata waktu untuk menghasilkan 64 citra baru dari der
     \caption{Interpolasi laten linear $z(\alpha) = (1-\alpha)z_A + \alpha z_B$, $\alpha \in \{0, 0.2, 0.4, 0.6, 0.8, 1\}$. Untuk AE, Sparse AE, dan VAE, $z_A$ dan $z_B$ merupakan encoding citra kelas Trouser dan Sneaker; untuk GAN dan DCGAN (tanpa encoder) berupa dua vektor derau acak.}
     \label{fig:interp}
 \end{figure}
-\isi{Analisis Figur 4: kontinuitas transisi dan artefak di latent voids.}
+Ketika dilakukan interpolasi laten linear, terlihat bahwa nilai $\alpha = 0$ dan $\alpha = 1$ menghasilkan gambar dari kelas yang berbeda dan sama-sama terlihat jelas, berlaku untuk semua jenis arsitektur. Seluruh model autoencoder menghasilkan gambar yang serupa, yakni celana panjang dan sepatu. Berbeda dengan model berbasis GAN, keduanya menghasilkan gambar yang lebih acak dan memiliki derau jelas, karena tidak memiliki encoder. Pada nilai $\alpha = 0.4$ dan $\alpha = 0.6$, seluruh gambar yang dihasilkan berupa transisi dari dua kelas berbeda, menghasilkan gambar bertumpuk yang saling bercampur satu sama lain.
 
 \begin{figure}[H]
     \centering
@@ -333,7 +346,11 @@ Latency diukur sebagai rata-rata waktu untuk menghasilkan 64 citra baru dari der
     \caption{Kurva training loss per epoch untuk keenam model (loss Generator dan Discriminator untuk GAN dan DCGAN) serta trajektori reverse diffusion DDPM $x_T \to x_0$.}
     \label{fig:loss}
 \end{figure}
-\isi{Analisis Figur 5: stabilitas kurva dan proses denoising bertahap.}
+Seluruh model autoencoder menunjukkan penurunan Loss yang signifikan hingga iterasi ke 5, dan berangsur turun hingga penghujung iterasi ke 20. Sama halnya dengan DDPM yang melakukan penghapusan derau, perbedaan terdapat pada iterasi 10, di mana DDPM sempat mengalami sedikit kenaikan sebelum kembali turun.
+
+Model Vanilla GAN tidak mengalami perubahan eksponensial, perubahan loss cenderung tidak stabil di awal. Di akhir pelatihan, loss dari generator masih lebih tinggi dari loss diskriminator. Berbeda dengan DCGAN, model DCGAN mengalami perubahan loss yang signifikan di 5 iterasi pertama. Pada akhir iterasi, nilai loss diskriminator lebih tinggi daripada loss generatornya.
+
+Gambar denoising pada proses DDPM terjadi secara bertahap, objek mulai terbentuk pada $T=250$, dan mulai dapat dibedakan pada $T=100$, sebelum akhirnya tidak memiliki derau sama sekali ketika mencapai $T=0$.
 
 
 % =====================================================================
