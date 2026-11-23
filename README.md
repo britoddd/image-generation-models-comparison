@@ -20,6 +20,7 @@ All metrics are measured on the test set (7,000 images). Latency is the time to 
 | DDPM | 28×28 | 9.30 | 2778.91 | – | – | – | 44.17 |
 
 Key findings:
+
 - **Vanilla AE has the best reconstruction**, but it cannot generate new images. VAE gives up some reconstruction quality (MSE 0.0135) in exchange for a latent space it can sample from.
 - **DCGAN has the best FID.** Its convolutional layers remove the speckle noise produced by the MLP-based Vanilla GAN.
 - **DDPM is about 7,700× slower to sample than DCGAN**, because it needs 1,000 sequential denoising steps. This matches the generative trilemma.
@@ -69,13 +70,14 @@ python main.py 6      # resume from step06 (earlier outputs must already exist)
 | `step12_figures.py` | The five comparison figures used in the report | `figures/fig1`–`fig5` |
 
 Helper modules:
+
 - `common.py`: shared `Decoder` / `AE` models, the `fit` / `evaluate` helpers, and the global seed.
 - `datasplit.py`: the 80/10/10 train/validation/test split (seed 42).
 - `recompute.py`: recomputes the step01/04/06 metrics from saved checkpoints when the training logs are missing.
 
 ## Project structure
 
-```
+```text
 ├── step01 … step12_*.py   # one script per pipeline stage
 ├── main.py                # runs all stages in order
 ├── common.py, datasplit.py, recompute.py
