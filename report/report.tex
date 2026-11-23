@@ -52,7 +52,7 @@
 
 \subsection{Discriminative $P(y|x)$ vs Generative $P(x)$}
 
-Model diskriminatif $P(y|x)$ memiliki target untuk klasifikasi suatu nilai x ke nilai y tertentu~\cite{bishop2006}. \textit{Loss function} \textit{Cross-entropy} menggunakan fungsi $-\log P(y|x)$ yang akan mendapat nilai tinggi apabila kelas yang benar berada di urutan atas. Model generatif $P(x)$ memiliki tujuan berbeda, yakni mempelajari distribusi dari $x$ untuk menghasilkan sampel baru yang belum pernah ada sebelumnya. Pada kompresi $x \to z \to \hat x$: $I(x; \hat x) \le I(x;z)$, tidak terdapat \textit{decoder}, namun representasi yang dihasilkan cukup kuat untuk menghasilkan kembali informasi yang hilang dari $z$.
+Model diskriminatif $P(y|x)$ memiliki target untuk klasifikasi suatu nilai $x$ ke nilai $y$ tertentu~\cite{bishop2006}. \textit{Loss function} \textit{Cross-entropy} menggunakan fungsi $-\log P(y|x)$ yang bernilai rendah (mendekati 0) apabila probabilitas kelas yang benar tinggi. Model generatif $P(x)$ memiliki tujuan berbeda, yakni mempelajari distribusi dari $x$ untuk menghasilkan sampel baru yang belum pernah ada sebelumnya. Pada kompresi $x \to z \to \hat x$ berlaku $I(x; \hat x) \le I(x;z)$~\cite{cover2006}, sehingga tidak ada \textit{decoder} yang dapat mengembalikan informasi yang telah hilang dari $z$.
 
 \subsection{Autoencoder}
 \subsubsection{Vanilla Autoencoder}
@@ -62,53 +62,55 @@ Terdiri atas jaringan Encoder $E: x \to z$ dan Decoder $D: z \to \hat{x}$, dilat
 Menggunakan loss $\text{MSE}+\lambda ||h||_{1}$, memiliki penalti \textit{L1} yang mendorong setiap aktivasi ke arah 0. Karakteristik ini membuat jarang terdapat unit aktif, menciptakan kondisi yang disebut \textit{sparse}. Semakin besar nilai $\lambda$, jumlah unit inaktif akan meningkat, dampaknya akan meningkatkan nilai kesalahan rekonstruksi. Kondisi \textit{sparse} membuat fitur menjadi lebih terkonsentrasi, tidak tersebar merata ke seluruh titik seperti pada Vanilla Autoencoder~\cite{ng2011}.
 
 \subsubsection{Variational Autoencoder}
-VAE emaksimalkan nilai ELBO, suatu nilai batas bawah pada $\log{p(x)}$~\cite{kingma2014}:
+VAE memaksimalkan nilai ELBO, suatu nilai batas bawah pada $\log{p(x)}$~\cite{kingma2014}:
 \[\log{p(x)}\ge \underbrace{\mathbb{E}_{q(z\mid x)}[\log{p(x\mid z)}]}_{\text{reconstruction}} - \underbrace{D_{KL}\big(q(z\mid x)\,\|\,p(z)\big)}_{\text{regulariser}}, \qquad p(z)=\mathcal{N}(0,I)\]
-\textit{Encoder} menghasilkan distribusi $q(z|x) = \mathcal{N}(\mu, \sigma^2)$, bukan sebuah titik. Kullback-Leibler Divergence (KL) menarik setiap gambar menuju $\mathcal{N}(0,I)$, sehingga memenuhi ruang kosong. Karakteristik ini membuat VAE cenderung memiliki hasil yang lebih buram apabila dibandingkan dengan Vanilla AE, serta memiliki $\text{MSE}$ yang lebih tinggi.
+\textit{Encoder} menghasilkan distribusi $q(z|x) = \mathcal{N}(\mu, \sigma^2)$, bukan sebuah titik. Kullback-Leibler Divergence (KL) menarik distribusi laten setiap gambar $q(z|x)$ menuju $\mathcal{N}(0,I)$, sehingga ruang laten terisi tanpa celah kosong. Karakteristik ini membuat VAE cenderung memiliki hasil yang lebih buram apabila dibandingkan dengan Vanilla AE, serta memiliki $\text{MSE}$ yang lebih tinggi.
 
 \subsection{GAN}
 \subsubsection{Vanilla GAN}
- GAN terdiri atas \textit{Generator} (G) dan \textit{Discriminator} (D) sebagai dua entitas terpisah yang saling bersaing dalam skema \textit{minimax}~\cite{goodfellow2014}. Untuk nilai G yang tetap, nilai optimal \textit{Discriminator} adalah $D^*(x)=\frac{P_{data}(x)}{P_{data}(x)+P_{y}(x)}$. \textit{Generator} bertujuan meminimalkan \textit{Jensen-Shannon divergence}, menilai gambar secara keseluruhan, bukan per pixel. Pada percobaan ini, GAN akan menghasilkan gambar yang tajam, karena nilai rata-rata akan menghasilkan gambar buram yang dapat dikenali dengan mudah oleh \textit{Discriminator}.
+ GAN terdiri atas \textit{Generator} (G) dan \textit{Discriminator} (D) sebagai dua entitas terpisah yang saling bersaing dalam skema \textit{minimax}~\cite{goodfellow2014}. Untuk nilai G yang tetap, nilai optimal \textit{Discriminator} adalah $D^*(x)=\frac{P_{data}(x)}{P_{data}(x)+P_{g}(x)}$. \textit{Generator} bertujuan meminimalkan \textit{Jensen-Shannon divergence}, menilai gambar secara keseluruhan, bukan per pixel. Pada percobaan ini, GAN akan menghasilkan gambar yang tajam, karena nilai rata-rata akan menghasilkan gambar buram yang dapat dikenali dengan mudah oleh \textit{Discriminator}.
 
 \subsubsection{Deep Convolutional GAN (DCGAN)}
-Arsitektur GAN yang diciptakan khusus untuk pelatihan dengan data gambar, karena memiliki banyak lapisan khusus untuk konvolusi. Terdapat bias induktif, konvolusi dilakukan secara lokal dan membagikan bobot, membuat model DCGAN dapat mengenali tepi dan sudut dengan lebih baik dibandingkan MLP biasa.
+Arsitektur GAN yang diciptakan khusus untuk pelatihan dengan data gambar, karena memiliki banyak lapisan khusus untuk konvolusi. Terdapat bias induktif, konvolusi dilakukan secara lokal dan membagikan bobot, membuat model DCGAN dapat mengenali tepi dan sudut dengan lebih baik dibandingkan MLP biasa~\cite{radford2016}.
 
 \subsection{Denoising Diffusion Probabilistic Model (DDPM)}
-Menambahkan \textit{noise} Gaussian pada setiap langkah, $q(x_t \mid x_{t-1})=\mathcal{N}(\sqrt{1-\beta_t}x_{t-1},\beta_t I)$. DDPM melakukan prediksi \textit{noise} menggunakan $\lVert \epsilon_\theta(x_t,t)\lVert^2$ yang merupakan regresi biasa dengan target tetap~\cite{ho2020}.
+Menambahkan \textit{noise} Gaussian pada setiap langkah, $q(x_t \mid x_{t-1})=\mathcal{N}(\sqrt{1-\beta_t}x_{t-1},\beta_t I)$. DDPM melakukan prediksi \textit{noise} menggunakan $\lVert \epsilon - \epsilon_\theta(x_t,t)\rVert^2$ yang merupakan regresi biasa dengan target tetap~\cite{ho2020}.
 
-\subsection{Metriks Evaluasi}
+\subsection{Metrik Evaluasi}
 \begin{table}[H]
     \centering
-    \caption{Konfigurasi arsitektur dan hyperparameter}
-    \label{tab:frozen}
+    \caption{Metrik evaluasi}
+    \label{tab:metricdef}
     \resizebox{\textwidth}{!}{%
     \begin{tabular}{lp{5cm}ll}
         \hline
         \textbf{Metrik} & \textbf{Definisi} &\textbf{Persamaan Matematika} & \textbf{Nilai Baik} \\
         \hline
         \hline
-        MSE & Jumlah kesalahan pixel dibandingkan persebaran jumlah pixel & $\frac{1}{N}\sigma{{(x - \hat x)}^2}$ & Rendah \\
+        MSE & Rata-rata kuadrat selisih piksel antara citra asli dan rekonstruksi & $\frac{1}{N}\sum{(x - \hat x)^2}$ & Rendah \\
         \hline
         PSNR & MSE dengan skala log, +3dB $\approx$ separuh MSE & $10\log_{10}(\text{MAX}^2/\text{MSE})$, MAX=1 & Tinggi \\
         \hline
-        SSIM & Membandingkan intensitas cahaya, kontras, dan struktur~\cite{wang2004} &  & Tinggi \\
+        SSIM & Membandingkan intensitas cahaya, kontras, dan struktur~\cite{wang2004} & --- & Tinggi \\
         \hline
-        FID & Mengukur kualitas dan persebaran secara bersamaan & $\lVert\mu_{r}-\mu_{g}\rVert^2+\mathrm{Tr}\big(\Sigma_r+\Sigma_g-2(\Sigma_r\Sigma_g)^{1/2}\big)$ & Rendah \\
+        FID & Mengukur kualitas dan persebaran secara bersamaan~\cite{heusel2017} & $\lVert\mu_{r}-\mu_{g}\rVert^2+\mathrm{Tr}\big(\Sigma_r+\Sigma_g-2(\Sigma_r\Sigma_g)^{1/2}\big)$ & Rendah \\
         \hline
-        Latensi & Waktu yang dibutuhkan untuk memproduksi 64 gambar (ms) &  & Rendah \\
+        Latensi & Waktu yang dibutuhkan untuk memproduksi 64 gambar (ms) & --- & Rendah \\
         \hline
     \end{tabular}}
 \end{table}
 
 \subsection{Trilema Generatif}
-Xiao et al. (2022) mengobservasi 3 kesulitan yang dialami oleh model generatif:
+Xiao et al.~\cite{xiao2022} mengobservasi 3 kesulitan yang dialami oleh model generatif:
 
 \begin{table}[H]
-    \label{tab:frozen}
+    \centering
+    \caption{Generative trilemma}
+    \label{tab:trilemma}
     \resizebox{\textwidth}{!}{
     \begin{tabular}{p{3cm}C{3.5cm}C{3.5cm}C{3.9cm}}
         \hline
-        \textbf{Check} & \textbf{Kualitas Sampel} & \textbf{Diversitas Mode} & \textbf{Kecepatan Sampling} \\
+        \textbf{Model} & \textbf{Kualitas Sampel} & \textbf{Diversitas Mode} & \textbf{Kecepatan Sampling} \\
         \hline
         \hline
         GAN / DCGAN & Tajam & Mudah kolaps & Sekali \\
@@ -121,12 +123,13 @@ Xiao et al. (2022) mengobservasi 3 kesulitan yang dialami oleh model generatif:
 \end{table}
 
 \subsection{Pengaturan Eksperimen}
-Seluruh model dilatih pada dataset Fashion-MNIST (70.000 citra grayscale $28\times28$, 10 kelas) yang digabungkan lalu dibagi secara acak menjadi train/validation/test dengan rasio 80/10/10 (56.000/7.000/7.000 citra) menggunakan \texttt{torch.Generator().manual\_seed(42)}. Piksel dinormalisasi ke rentang $[0,1]$; untuk model ber-output Tanh (GAN, DCGAN, DDPM) data diskalakan ke $[-1,1]$. Seluruh skrip menetapkan \texttt{torch.manual\_seed(42)} dan \texttt{np.random.seed(42)}, dengan \texttt{batch\_size = 128} (\texttt{shuffle=True} pada train set). Seluruh metrik numerik dihitung pada test set.
+Seluruh model dilatih pada dataset Fashion-MNIST (70.000 citra grayscale $28\times28$, 10 kelas) yang digabungkan lalu dibagi secara acak menjadi train/validation/test dengan rasio 80/10/10 (56.000/7.000/7.000 citra) menggunakan \texttt{torch.Generator().manual\_seed(42)}. Piksel dinormalisasi ke rentang $[0,1]$; untuk model ber-output Tanh (GAN, DCGAN) serta DDPM, data diskalakan ke $[-1,1]$. Seluruh skrip menetapkan \texttt{torch.manual\_seed(42)} dan \texttt{np.random.seed(42)}, dengan \texttt{batch\_size = 128} (\texttt{shuffle=True} pada train set). Seluruh metrik numerik dihitung pada test set.
 
 \subsection{Konfigurasi arsitektur dan \textit{hyperparameter}}
 
 \begin{table}[H]
     \centering
+    \caption{Konfigurasi arsitektur dan \textit{hyperparameter}}
     \label{tab:config}
     \resizebox{\textwidth}{!}{%
     \begin{tabular}{P{2.4cm}P{5.2cm}C{1.4cm}P{3cm}P{2.6cm}C{1.2cm}P{2.8cm}}
@@ -164,7 +167,7 @@ Seluruh model dilatih pada dataset Fashion-MNIST (70.000 citra grayscale $28\tim
 
 \paragraph{Sparse AE.} Dengan $h = E(x) \in \mathbb{R}^{64}$:
 \begin{equation}
-    \mathcal{L}_{SAE} = \frac{1}{N}\sum_{i=1}^{N} \lVert x_i - D(h_i) \rVert_2^2 + \lambda \frac{1}{B}\sum_{i=1}^{B} \lVert h_i \rVert_1
+    \mathcal{L}_{SAE} = \frac{1}{N}\sum_{i=1}^{N} \lVert x_i - D(h_i) \rVert_2^2 + \lambda \frac{1}{N}\sum_{i=1}^{N} \lVert h_i \rVert_1
 \end{equation}
 
 \paragraph{VAE.} Encoder menghasilkan $\mu, \log\sigma^2$; sampel laten melalui reparameterization trick $z = \mu + \sigma \odot \epsilon$, $\epsilon \sim \mathcal{N}(0, I)$:
@@ -193,20 +196,21 @@ Proses balik (sampling):
 % =====================================================================
 \section{Pembuktian Teoretis dan Empiris Batasan MLP Classifier untuk Image Generation}
 
-MLP Classifier ($784 \to 256 \to 64 \to 10$) mencapai akurasi test set sebesar 88.13\% pada iterasi ke 9.
+MLP Classifier ($784 \to 256 \to 64 \to 10$) mencapai akurasi test set sebesar 88.13\% (checkpoint terbaik pada epoch ke-9).
 
-\subsection{Perbedaan pemodelan $P(y\lvert x)$ berbanding $P(x)$}
+\subsection{Perbedaan pemodelan $P(y\mid x)$ berbanding $P(x)$}
 
-Pada dasarnya, keduanya memiliki tujuan berbeda, $P(y\lvert x)$ untuk klasifikasi, sedangkan $P(x)$ untuk memodelkan ulang nilai $x$. Eksperimen ini menerapkan \textit{encoder} bentuk yang sama pada kedua hal tersebut, yakni $784 \to 256 \to 64$. Tahap ini menghasilkan nilai $z_{MLP} \in \mathbb{R}^{64}$ sebagai nilai hasil dari $\texttt{encode()}$.
+Pada dasarnya, keduanya memiliki tujuan berbeda, $P(y\mid x)$ untuk klasifikasi, sedangkan $P(x)$ untuk memodelkan ulang nilai $x$. Eksperimen ini menerapkan \textit{encoder} bentuk yang sama pada kedua hal tersebut, yakni $784 \to 256 \to 64$. Tahap ini menghasilkan nilai $z_{MLP} \in \mathbb{R}^{64}$ sebagai nilai hasil dari $\texttt{encode()}$.
 
 \subsection{Sifat ketidakbalikan matriks bobot $W^T \neq W^{-1}$}
 
-Nilai invers ($W^{-1}$) apabila dikalikan dengan matriks $W$ seharusnya akan menghasilkan matriks identitas ($I$). Pengujian dilakukan dengan membandingkan hasil perhitungan matriks $W^T W$ dengan nilai dari matriks identitas. Melalui hasil percobaan tersebut, didapatkan hasil senilai 219.72, bukan 0. Angka ini membuktikan bahwa sifat ketidakbalikan $W^T \neq W^{-1}$ berlaku. Skor $\mathrm{rank}(W_1^T W_1)$ menunjukkan angka 256 dari 784, menunjukkan bahwa terdapat fitur yang hilang karena dilakukan kompresi pada lapisan \textit{bottleneck}. Ketidakmampuan tersebut dapat terlihat pada hasil visualisasi yang berupa bercak kabur. Adapun warna abu-abu disebabkan oleh penggunaan fungsi $Sigmoid(0) = 0.5$ yang mengubah sinyal lemah menjadi warna abu-abu. 
+Nilai invers ($W^{-1}$) apabila dikalikan dengan matriks $W$ seharusnya akan menghasilkan matriks identitas ($I$). Pengujian dilakukan dengan membandingkan hasil perhitungan matriks $W^T W$ dengan nilai dari matriks identitas. Melalui hasil percobaan tersebut, didapatkan $\lVert W_1^T W_1 - I \rVert_F = 219.72$, bukan 0. Angka ini membuktikan bahwa sifat ketidakbalikan $W^T \neq W^{-1}$ berlaku. Skor $\mathrm{rank}(W_1^T W_1)$ menunjukkan angka 256 dari 784, menunjukkan bahwa terdapat fitur yang hilang karena dilakukan kompresi pada lapisan \textit{bottleneck}. Ketidakmampuan tersebut dapat terlihat pada hasil visualisasi yang berupa bercak kabur. Adapun warna abu-abu disebabkan oleh penggunaan fungsi $\mathrm{sigmoid}(0) = 0.5$ yang mengubah sinyal lemah menjadi warna abu-abu. 
 
 \begin{figure}[H]
     \centering
     \fig{0.95\textwidth}{class_backprojection.png}
-    \label{fig:interp}
+    \caption{Proyeksi balik vektor kelas one-hot $y_c$ melalui $W_3^T$, $W_2^T$, $W_1^T$ (Tahap 2).}
+    \label{fig:classbp}
 \end{figure}
 
 Di sisi lain, bobot dari MLP Classifier berbeda dengan fitur laten, bobot didapatkan melalui training yang berisikan keseluruhan kelas ke dalam 64 fitur, bukan menjadi fitur laten dari tiap kelas. Ditambah lagi, 10 nilai yang dihasilkan tidak dapat digunakan untuk merepresentasikan 784 piksel.
@@ -215,15 +219,16 @@ Di sisi lain, bobot dari MLP Classifier berbeda dengan fitur laten, bobot didapa
 \begin{figure}[H]
     \centering
     \fig{0.9\textwidth}{backprojection.png}
-    \label{fig:interp}
+    \caption{Proyeksi balik vektor laten $z_{MLP}$ melalui $W_2^T$, $W_1^T$ (Tahap 3).}
+    \label{fig:latentbp}
 \end{figure}
 
-Kedua rekonstruksi menghasilkan gambar yang tidak dapat dikenali secara langsung oleh manusia. Pada tahap 2, dilakukan proyeksi balik dari bobot MLP Classifier, sedangkan tahap 3 dari vektor laten. Hasil tahap 2 menunjukkan gambar yang buram, dengan sebagian besar piksel berisikan warna abu-abu. Berbeda dengan tahap 3 yang menghasilkan gambar dengan distribusi acak antara warna putih dan hitam.
+Kedua rekonstruksi menghasilkan gambar yang tidak dapat dikenali secara langsung oleh manusia. Keduanya menggunakan transpos bobot MLP Classifier; tahap 2 berangkat dari vektor one-hot kelas $y_c$, sedangkan tahap 3 dari vektor laten $z_{MLP}$. Hasil tahap 2 menunjukkan gambar yang buram, dengan sebagian besar piksel berisikan warna abu-abu. Berbeda dengan tahap 3 yang menghasilkan gambar dengan distribusi acak antara warna putih dan hitam.
 Walaupun sama-sama tidak memiliki bentuk yang jelas, gambar hasil proyeksi balik transpos bobot ini memiliki struktur tepian yang lebih jelas apabila dibandingkan dengan hasil dari bobot pada tahap sebelumnya. Pada gambar baju, dihasilkan pola baju dengan terlihat lebih jelas apabila dibandingkan pada tahap sebelumnya.
 
 \subsection{Evaluasi frozen latent decoder ($Z_{MLP}$ berbanding $Z_{AE}$)}
 
-Pada tahapan ini, pada bobot MLP Classifier dibekukan $\texttt{requires\_grad\_(False)}$, tujuannya mencegah nilai tersebut diperbaharui pada pelatihan berikutnya. Pada MLP Classifier tersebut kemudian ditambahkan Decoder yang dilatih menggunakan $\text{MSE Loss}$ untuk melakukan rekonstruksi citra asli dari fitur laten. Hasil perbandingan dengan Vanilla Autoencoder terdapat pada tabel berikut:
+Pada tahapan ini, bobot MLP Classifier dibekukan dengan \texttt{requires\_grad\_(False)}, tujuannya mencegah nilai tersebut diperbaharui pada pelatihan berikutnya. Pada MLP Classifier tersebut kemudian ditambahkan Decoder yang dilatih menggunakan $\text{MSE Loss}$ untuk melakukan rekonstruksi citra asli dari fitur laten. Hasil perbandingan dengan Vanilla Autoencoder terdapat pada tabel berikut:
 \begin{table}[H]
     \centering
     \caption{Rekonstruksi test set dari laten beku $z_{MLP}$ dibandingkan Vanilla AE ($z_{AE} \in \mathbb{R}^{64}$)}
@@ -240,21 +245,22 @@ Pada tahapan ini, pada bobot MLP Classifier dibekukan $\texttt{requires\_grad\_(
     \end{tabular}}
 \end{table}
 
-Berdasarkan nilai dari $Z_{MLP}$ dan $Z_{AE}$, didapatkan karakteristik dari tiap pemodelan. $Z_{MLP}$ cenderung memiliki nilai kesalahan yang lebih tinggi pada seluruh metriks yang terdapat di tabel rekonstruksi. Pada metriks MSE dan PSNR, nilai MSE menunjukkan angka $Z_{MLP}$ dua kali lebih tinggi, menunjukkan bahwa $Z_{MLP}$ tidak lebih baik dari $Z_{AE}$ dalam menciptakan representasi. Begitu pula dengan metrik SSIM, $Z_{MLP}$ memiliki angka yang lebih rendah, menunjukkan hasil yang lebih buruk.
+Berdasarkan nilai dari $Z_{MLP}$ dan $Z_{AE}$, didapatkan karakteristik dari tiap pemodelan. $Z_{MLP}$ memiliki performa yang lebih buruk pada seluruh metrik yang terdapat di tabel rekonstruksi. Pada metriks MSE dan PSNR, nilai MSE menunjukkan angka $Z_{MLP}$ dua kali lebih tinggi, menunjukkan bahwa $Z_{MLP}$ tidak lebih baik dari $Z_{AE}$ dalam menciptakan representasi. Begitu pula dengan metrik SSIM, $Z_{MLP}$ memiliki angka yang lebih rendah, menunjukkan hasil yang lebih buruk.
 
-Tingginya nilai dari autoencoder dibandingkan MLP classifier disebabkan karakteristik dari masing-masing, di mana autoencoder memang dirancang untuk mencari representasi dari input, sedangkan MLP classifier ditujukan untuk klasifikasi. Pada tahap 3 juga dapat dilihat nilai proyeksi balik dari $Z_{MLP}$ dapat mengenali bentuk umum dari suatu objek, tapi kehilangan detail yang lebih dalam.
+Keunggulan autoencoder dibandingkan MLP classifier disebabkan karakteristik dari masing-masing, di mana autoencoder memang dirancang untuk mencari representasi dari input, sedangkan MLP classifier ditujukan untuk klasifikasi. Pada tahap 3 juga dapat dilihat nilai proyeksi balik dari $Z_{MLP}$ dapat mengenali bentuk umum dari suatu objek, tapi kehilangan detail yang lebih dalam.
 
 \subsection{Hasil uji prior sampling pada ruang laten MLP Classifier}
 % Angka: % nol pada z asli, % nilai negatif pada z_rand (output step05). Gambar: prior_sampling.png.
-Dilakukan perhitungan vektor rata-rata $\mu_z$ dan simpangan baku $\sigma_z$ dari fitur laten $Z_{MLP}$ lalu ditarik sampel acak $z_{\text{rand}}\sim \mathcal{N}\big(\mu_z,\text{diag}(\sigma^2_z)\big)$ yang kemudian diteruskan ke decoder pada tahap 4. Didapatkan nilai $z$ asli sebesar 50.9\% dengan nilai terendah 0.0, sedangkan nilai $z_{\text{sampled}}$ 13.0\% dengan meliputi nilai negatif.
+Dilakukan perhitungan vektor rata-rata $\mu_z$ dan simpangan baku $\sigma_z$ dari fitur laten $Z_{MLP}$ lalu ditarik sampel acak $z_{\text{rand}}\sim \mathcal{N}\big(\mu_z,\text{diag}(\sigma^2_z)\big)$ yang kemudian diteruskan ke decoder pada tahap 4. Sebanyak 50.9\% elemen $z$ asli bernilai tepat nol dengan nilai terendah 0.0, sedangkan 13.0\% elemen $z_{\text{rand}}$ bernilai negatif.
 
 \begin{figure}[H]
     \centering
-    \caption{$z$ asli vs $z_{\text{rand}}\sim \mathcal{N}\big(\mu_z, \text{diag}(\sigma^2_z)\big)$ dengan decoder sama}
     \fig{.7\textwidth}{prior_sampling.png}
+    \caption{$z$ asli vs $z_{\text{rand}}\sim \mathcal{N}\big(\mu_z, \text{diag}(\sigma^2_z)\big)$ dengan decoder sama}
+    \label{fig:prior}
 \end{figure}
 
-Terlihat bahwa gambar yang diambil dari hasil normalisasi memiliki hasil yang lebih jauh dibandingkan gambar asli. Tidak ada satupun dari 8 sampel yang berhasil merepresentasikan $x$. Sebagian kecil dari setiap gambar masih merepresentasikan data asli, namun sebagian besar lainnya tidak. Hal ini disebabkan nilai terendah dari $z$ seharusnya adalah 0, tidak mencapai negatif.
+Terlihat bahwa gambar yang diambil dari hasil sampling memiliki hasil yang lebih jauh dibandingkan gambar asli. Tidak ada satupun dari 8 sampel yang berhasil merepresentasikan $x$. Sebagian kecil dari setiap gambar masih merepresentasikan data asli, namun sebagian besar lainnya tidak. Hal ini disebabkan nilai terendah dari $z$ seharusnya adalah 0, tidak mencapai negatif.
 
 Nilai $z$ tidak mungkin negatif karena fungsi aktivasi ReLU selalu membuat $z \ge 0$ sehingga memberikan nilai paling kecil 0 ke decoder. Selain itu, penggunaan $diag(\sigma^2)$ menghilangkan korelasi antar fitur dimensi.
 
@@ -280,7 +286,7 @@ Nilai $z$ tidak mungkin negatif karena fungsi aktivasi ReLU selalu membuat $z \g
         \hline
         DCGAN & 100 & 3.36 & 0.36 & N/A & N/A & N/A & 33.65 & \\
         \hline
-        DDPM & 28\times28 & 9.30 & 2778.91 & N/A & N/A & N/A & 44.17 & \\
+        DDPM & $28\times28$ & 9.30 & 2778.91 & N/A & N/A & N/A & 44.17 & \\
         
         \hline
     \end{tabular}}
@@ -296,11 +302,11 @@ Nilai $z$ tidak mungkin negatif karena fungsi aktivasi ReLU selalu membuat $z \g
 
 Latency diukur sebagai rata-rata waktu untuk menghasilkan 64 citra baru dari derau (VAE, GAN, DCGAN, DDPM dengan $T = 1000$ langkah) atau merekonstruksi 64 citra test (Vanilla AE, Sparse AE), setelah satu pemanggilan warm-up. FID dihitung dengan fitur Inception-v3 (2048 dimensi) antara 5.000 sampel sintetis dan 5.000 citra test set, dengan kanal grayscale diduplikasi menjadi tiga kanal.
 
-Model Vanilla Autoencoder memiliki durasi pelatihan per iterasi paling cepat, di angka 0.75s, dikarenakan tidak memiliki perhitungan tambahan. Pada Sparse Autoencoder, terdapat kalkulasi penalti L1 yang menambah sedikit durarsi. Pada VAE, perhitungan tambahan distribusi dilakukan terlebih dahulu. Vanilla GAN melakukan training pada dua model berbeda pada setiap iterasi, sehingga menghasilkan waktu training yang lebih lama dari arsitektur autoencoder. Begitu pula dengan DGCAN yang memiliki tambahan layer konvolusi yang turut membuat durasinya semakin panjang. DDPM menghasilkan durasi paling lama, mencapai 9.30s, karena proses melatihnya melibatkan pemberian derau pada input dan penghapusan derau sedikit demi sedikit hingga kembali ke gambar awal.
+Model Vanilla Autoencoder memiliki durasi pelatihan per epoch paling cepat, di angka 0.75s, dikarenakan tidak memiliki perhitungan tambahan. Pada Sparse Autoencoder, terdapat kalkulasi penalti L1 yang menambah sedikit durarsi. Pada VAE, perhitungan tambahan distribusi dilakukan terlebih dahulu. Vanilla GAN melakukan training pada dua model berbeda pada setiap iterasi, sehingga menghasilkan waktu training yang lebih lama dari arsitektur autoencoder. Begitu pula dengan DCGAN yang memiliki tambahan layer konvolusi yang turut membuat durasinya semakin panjang. DDPM menghasilkan durasi paling lama, mencapai 9.30s, karena proses melatihnya melibatkan pemberian derau pada input dan penghapusan derau sedikit demi sedikit hingga kembali ke gambar awal.
 
-Pada proses pelatihan, DDPM membutuhkan waktu yang jauh lebih lama secara signifikan, disebabkan oleh T = 1000 langkah yang dilakukan secara sequential setiap kali melakukan pembuatan gambar baru.
+Pada proses sampling (inferensi), DDPM membutuhkan waktu yang jauh lebih lama secara signifikan, disebabkan oleh $T = 1000$ langkah yang dilakukan secara sequential setiap kali melakukan pembuatan gambar baru.
 
-Metriks MSE, PSNR, dan SSIM digunakan pada model autoencoder, keseluruhan metrik tersebut menghasilkan urutan rank yang sama, vanilla autoencoder terbaik, disusul sparse autoencoder dan VAE. Metrik ini tidak digunakan pada Vanilla GAN, DCGAN, dan DDPM karena mencocokkan gambar piksel demi piksel, sehingga cocok untuk gambar yang buram, padahal ketiga model tersebut menciptakan gambar baru dengan sifat tajam.
+Metrik MSE, PSNR, dan SSIM digunakan pada model autoencoder, keseluruhan metrik tersebut menghasilkan urutan rank yang sama, vanilla autoencoder terbaik, disusul sparse autoencoder dan VAE. Metrik ini tidak digunakan pada Vanilla GAN, DCGAN, dan DDPM karena ketiga model tersebut tidak memiliki \textit{encoder}: citra yang dihasilkan merupakan citra baru tanpa pasangan citra asli, sehingga tidak ada acuan untuk dicocokkan piksel demi piksel. Selain itu, metrik piksel cenderung menguntungkan gambar buram, padahal ketiga model tersebut menciptakan gambar dengan sifat tajam.
 
 Skor FID menjadi metrik tepat yang mengukur distribusi dari fitur gambar yang dibuat, bukan dari posisi piksel eksak. 
 
@@ -330,7 +336,7 @@ Pada $z$ yang didapatkan melalui sampling acak, terlihat perbedaan signifikan an
     \caption{Bukti empiris batasan bobot dan fitur laten MLP Classifier: proyeksi balik $W^T$ dari $y_c$ dan $z_{MLP}$, frozen latent decoder ($z_{MLP}$ vs $z_{AE}$), dan prior sampling $z_{rand} \sim \mathcal{N}(\mu_z, \mathrm{diag}(\sigma_z^2))$.}
     \label{fig:mlp}
 \end{figure}
-Proyeksi balik $W_T$ dan $z_\text{MLP}$ sama-sama menghasilkan gambar yang tidak dapat dikenali. Hal ini menunjukkan batasan keduanya dalam menyimpan representasi gambar. Pada model yang menggunakan frozen latent decoder, hasilnya menunjukkan perubahan ke arah yang lebih baik. Terlihat bahwa fitur dari $z_{\text{AE}}$ menghasilkan gambar yang lebih detail serta lebih tajam dibandingkan $z_\text{MLP}$, menunjukkan kelebihan arsitektur autoencoder dibandingkan classifier untuk menciptakan representasi. Ketika dilakukan prior sampling pada data $z$, dihasilkan citra yang tidak berbentuk, mengartikan bahwa nilai $z$ tidak boleh lebih kecil dari nol.
+Proyeksi balik $W^T$ dari $y_c$ dan $z_\text{MLP}$ sama-sama menghasilkan gambar yang tidak dapat dikenali. Hal ini menunjukkan batasan keduanya dalam menyimpan representasi gambar. Pada model yang menggunakan frozen latent decoder, hasilnya menunjukkan perubahan ke arah yang lebih baik. Terlihat bahwa fitur dari $z_{\text{AE}}$ menghasilkan gambar yang lebih detail serta lebih tajam dibandingkan $z_\text{MLP}$, menunjukkan kelebihan arsitektur autoencoder dibandingkan classifier untuk menciptakan representasi. Ketika dilakukan prior sampling pada data $z$, dihasilkan citra yang tidak berbentuk, mengartikan bahwa nilai $z$ tidak boleh lebih kecil dari nol.
 
 \begin{figure}[H]
     \centering
@@ -350,7 +356,7 @@ Seluruh model autoencoder menunjukkan penurunan Loss yang signifikan hingga iter
 
 Model Vanilla GAN tidak mengalami perubahan eksponensial, perubahan loss cenderung tidak stabil di awal. Di akhir pelatihan, loss dari generator masih lebih tinggi dari loss diskriminator. Berbeda dengan DCGAN, model DCGAN mengalami perubahan loss yang signifikan di 5 iterasi pertama. Pada akhir iterasi, nilai loss diskriminator lebih tinggi daripada loss generatornya.
 
-Gambar denoising pada proses DDPM terjadi secara bertahap, objek mulai terbentuk pada $T=250$, dan mulai dapat dibedakan pada $T=100$, sebelum akhirnya tidak memiliki derau sama sekali ketika mencapai $T=0$.
+Gambar denoising pada proses DDPM terjadi secara bertahap, objek mulai terbentuk pada $t=250$, dan mulai dapat dibedakan pada $t=100$, sebelum akhirnya tidak memiliki derau sama sekali ketika mencapai $t=0$.
 
 
 % =====================================================================
@@ -384,7 +390,7 @@ Gambar denoising pada proses DDPM terjadi secara bertahap, objek mulai terbentuk
 \subsection{Kesimpulan}
 \isi{Kesimpulan dan verifikasi Generative Trilemma.}
 
-\subsection{Daftar Pustaka}
+\renewcommand{\refname}{Daftar Pustaka}
 \begin{thebibliography}{99}
     \bibitem{bishop2006} C. M. Bishop, \emph{Pattern Recognition and Machine Learning}. Springer, 2006.
     \bibitem{cover2006} T. M. Cover and J. A. Thomas, \emph{Elements of Information Theory}, 2nd ed. Wiley, 2006.
