@@ -1,1 +1,22 @@
 .venv
+__pycache__
+.ipynb_checkpoints
+data
+claude
+
+# Course material
+instruction.pdf
+instruction.html
+
+# Report: keep only the LaTeX source and compiled PDF
+report/*
+!report/report.tex
+!report/report.pdf
+
+# Generated outputs (recreated by `python main.py`)
+latents/*
+models/*
+weights/*
+logs/*
+!logs/results.json
+!.gitkeep
