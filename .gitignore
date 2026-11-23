@@ -19,4 +19,5 @@ models/*
 weights/*
 logs/*
 !logs/results.json
+figures/preview_*.png
 !.gitkeep

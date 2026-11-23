@@ -1,7 +1,7 @@
 '''
 Tahap 00: Data splitting
 
-Pembagian dataset menjadi rasio 80/10/10 untuk train/test/split. 
+Pembagian dataset menjadi rasio 80/10/10 untuk train/validation/test.
 Data yang di-return berupa DataLoader yang siap digunakan untuk melatih model
 
 '''
